@@ -9,7 +9,7 @@ RUN apt-get --yes update && apt-get --yes install latexmk texlive-fonts-recommen
 ENV DEBIAN_FRONTEND=$_DEBIAN_FRONTEND
 ENV _DEBIAN_FRONTEND=""
 
-ARG ESMF_BRANCH=""
+ARG ESMF_BRANCH="develop"
 RUN echo "ESMF_BRANCH=$ESMF_BRANCH"
 
 ENV ARTIFACTS=/artifacts/doc-esmpy
