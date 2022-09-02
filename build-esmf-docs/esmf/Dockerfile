@@ -19,15 +19,15 @@ ENV ESMF_DIR=${HOME}/sandbox/esmf/src-git
 
 # Make the NUOPC documentation
 WORKDIR ${ESMF_DIR}/src/addon/NUOPC/doc
-RUN make localdoc 2>&1 | tee ${ESMF_ARTIFACTS}/nuopc-make-doc.out
+RUN make localdoc
 
 # Make the ESMF documentation
 WORKDIR ${ESMF_DIR}
-RUN make doc 2>&1 | tee ${ESMF_ARTIFACTS}/esmf-make-doc.out
+RUN make doc
 
 # Make the ESMF dev guide documentation
 WORKDIR ${ESMF_DIR}/src/doc/dev_guide
-RUN make 2>&1 | tee ${ESMF_ARTIFACTS}/dev_guide-make-doc.out
+RUN make
 
 # Collect and compress the documentation artifacts
 WORKDIR ${ESMF_DIR}

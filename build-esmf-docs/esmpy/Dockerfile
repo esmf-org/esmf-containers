@@ -27,8 +27,8 @@ ENV ESMF_INSTALL_LIBDIR=${ESMF_INSTALL_PREFIX}/lib
 ENV ESMF_INSTALL_MODDIR=${ESMF_INSTALL_PREFIX}/mod
 
 WORKDIR ${ESMF_DIR}
-RUN make 2>&1 | tee esmf-make.out
-RUN make install 2>&1 | tee esmf-make-install.out
+RUN make 
+RUN make install
 
 ENV ESMFMKFILE=${ESMF_INSTALL_LIBDIR}/esmf.mk
 RUN pip3 install sphinx sphinxcontrib-packages sphinxcontrib-bibtex==1.0.0 numpy nose
@@ -36,7 +36,7 @@ RUN pip3 install sphinx sphinxcontrib-packages sphinxcontrib-bibtex==1.0.0 numpy
 WORKDIR ${ESMF_DIR}/src/addon/ESMPy
 RUN python3 setup.py build
 WORKDIR doc
-RUN make html latexpdf 2>&1 | tee ${ARTIFACTS}/esmpy-make-doc.out
+RUN make html latexpdf 
 
 RUN cp -r esmpy_doc ${ARTIFACTS} && \
     cd /artifacts && \
