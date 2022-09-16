@@ -33,7 +33,7 @@ RUN make install
 ENV ESMFMKFILE=${ESMF_INSTALL_LIBDIR}/esmf.mk
 RUN pip3 install sphinx sphinxcontrib-packages sphinxcontrib-bibtex
 
-WORKDIR ${ESMF_DIR}/src/addon/esmpy
+WORKDIR ${ESMF_DIR}/src/addon/ESMPy
 RUN python3 setup.py build
 WORKDIR doc
 RUN make html latexpdf
