@@ -31,7 +31,7 @@ RUN make
 RUN make install
 
 ENV ESMFMKFILE=${ESMF_INSTALL_LIBDIR}/esmf.mk
-RUN pip3 install sphinx sphinxcontrib-packages sphinxcontrib-bibtex
+RUN pip3 install sphinx sphinxcontrib-packages sphinxcontrib-bibtex numpy
 
 WORKDIR ${ESMF_DIR}/src/addon/ESMPy
 RUN python3 setup.py build
