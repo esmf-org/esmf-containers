@@ -36,6 +36,17 @@ ENV PATH="${PATH}:${ESMF_INSTALL_PREFIX}/bin"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${ESMF_INSTALL_PREFIX}/lib"
 ENV ESMFMKFILE="${ESMF_INSTALL_PREFIX}/lib/esmf.mk"
 
+# download prototypes
+ENV PROTO_VERSION=${ESMF_VERSION}
+ARG PROTO_URL=https://github.com/esmf-org/nuopc-app-prototypes/archive/refs/tags/v${PROTO_VERSION}.tar.gz
+ARG PROTO_TAR=nuopc-app-prototypes-${PROTO_VERSION}.tar.gz
+ARG PROTO_DIR=${DEVSRC}/nuopc-app-prototypes-${PROTO_VERSION}
+WORKDIR ${PROTO_DIR}
+ADD --chown=dev:dev ${PROTO_URL} ${DEVDNL}/${PROTO_TAR}
+RUN <<INSTALL_PROTOTYPES bash
+  tar --strip-components=1 -xzf ${DEVDNL}/${PROTO_TAR}
+INSTALL_PROTOTYPES
+
 # default execution command
 WORKDIR ${DEVHOME}
 SHELL ["/bin/bash","-ec"]
