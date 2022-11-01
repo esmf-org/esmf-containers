@@ -65,7 +65,8 @@ ARG DEVSRC=${DEVHOME}/source
 ARG DEVSTK=${DEVHOME}/stack
 RUN <<ADD_USER_DEV bash
   groupadd -r dev
-  useradd -r -m -d ${DEVHOME} -s /bin/bash -g dev -p dev dev
+  useradd -r -m -d ${DEVHOME} -s /bin/bash -g dev dev
+  echo 'dev:password' | chpasswd
   mkdir -p ${DEVDNL}
   mkdir -p ${DEVSRC}
   mkdir -p ${DEVSTK}
