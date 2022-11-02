@@ -24,11 +24,11 @@ LABEL "org.earthsystemmodeling.osname.version"=${OS_VERSION}
 LABEL "org.earthsystemmodeling.compiler"=${COMPILER}
 LABEL "org.earthsystemmodeling.compiler.vers"=${COMPILER_VERSION}
 
-# change root password
-RUN echo 'root:password' | chpasswd
-
-# link /bin/sh to bash
-RUN ln -sf /bin/bash /bin/sh
+# root setup
+RUN <<ROOT_SETUP bash
+  echo 'root:password' | chpasswd
+  ln -sf /bin/bash /bin/sh
+ROOT_SETUP
 
 # install packages
 RUN <<INSTALL_PACKAGES bash
@@ -38,17 +38,20 @@ RUN <<INSTALL_PACKAGES bash
   dpkg-reconfigure --frontend noninteractive tzdata
   apt-get install -y \
     build-essential \
+    gcc-9 \
+    gfortran-9 \
     wget \
     curl \
     m4 \
     zlib1g \
     zlib1g-dev \
     libssl-dev \
+    python3 \
+    python3-pip \
     git \
-    vim \
-    gcc-9 \
-    gfortran-9
+    vim
   apt-get clean
+  pip3 install PyYAML
 INSTALL_PACKAGES
 
 # set compilers
@@ -60,9 +63,9 @@ ENV FC  gfortran-9
 
 # create users
 ENV DEVHOME=/home/dev
-ARG DEVDNL=${DEVHOME}/downloads
-ARG DEVSRC=${DEVHOME}/source
-ARG DEVSTK=${DEVHOME}/stack
+ENV DEVDNL=${DEVHOME}/downloads
+ENV DEVSRC=${DEVHOME}/source
+ENV DEVSTK=${DEVHOME}/stack
 RUN <<ADD_USER_DEV bash
   groupadd -r dev
   useradd -r -m -d ${DEVHOME} -s /bin/bash -g dev dev
@@ -77,13 +80,13 @@ USER dev
 
 # install cmake
 ENV CMAKE_VERSION=3.18.2
-ARG CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz
-ARG CMAKE_TAR=cmake-${CMAKE_VERSION}.tar.gz
+ENV CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz
 ENV CMAKE_DIR=${DEVSTK}/cmake-${CMAKE_VERSION}
-WORKDIR ${DEVSRC}/cmake-${CMAKE_VERSION}
-ADD --chown=dev:dev ${CMAKE_URL} ${DEVDNL}/${CMAKE_TAR}
 RUN <<INSTALL_CMAKE bash
-  tar --strip-components=1 -xzf ${DEVDNL}/${CMAKE_TAR}
+  mkdir -p ${DEVSRC}/cmake-${CMAKE_VERSION}
+  cd ${DEVSRC}/cmake-${CMAKE_VERSION}
+  wget ${CMAKE_URL} -O cmake-${CMAKE_VERSION}.tar.gz
+  tar --strip-components=1 -xzf cmake-${CMAKE_VERSION}.tar.gz
   ./bootstrap --prefix=${CMAKE_DIR}
   make all install
   cd ${DEVSRC} && rm -rf cmake-${CMAKE_VERSION}
@@ -94,16 +97,14 @@ ENV CTEST ${CMAKE_DIR}/bin/ctest
 
 # install openmpi
 ENV OPENMPI_VERSION=3.0.0
-ARG OPENMPI_URL=https://download.open-mpi.org/release/open-mpi/v3.0/openmpi-${OPENMPI_VERSION}.tar.gz
-ARG OPENMPI_TAR=openmpi-${OPENMPI_VERSION}.tar.gz
+ENV OPENMPI_URL=https://download.open-mpi.org/release/open-mpi/v3.0/openmpi-${OPENMPI_VERSION}.tar.gz
 ENV OPENMPI_DIR=${DEVSTK}/openmpi-${OPENMPI_VERSION}
-WORKDIR ${DEVSRC}/openmpi-${OPENMPI_VERSION}
-ADD --chown=dev:dev ${OPENMPI_URL} ${DEVDNL}/${OPENMPI_TAR}
 RUN <<INSTALL_OPENMPI bash
-  tar --strip-components=1 -zxf ${DEVDNL}/${OPENMPI_TAR}
-  mkdir build
-  cd build
-  ../configure --enable-fortran --prefix=${OPENMPI_DIR}
+  mkdir -p ${DEVSRC}/openmpi-${OPENMPI_VERSION}
+  cd ${DEVSRC}/openmpi-${OPENMPI_VERSION}
+  wget ${OPENMPI_URL} -O openmpi-${OPENMPI_VERSION}.tar.gz
+  tar --strip-components=1 -zxf openmpi-${OPENMPI_VERSION}.tar.gz
+  ./configure --enable-fortran --prefix=${OPENMPI_DIR}
   make all install
   cd ${DEVSRC} && rm -rf openmpi-${OPENMPI_VERSION}
 INSTALL_OPENMPI
@@ -119,16 +120,14 @@ ENV FC  mpifort
 
 # install hdf5
 ENV HDF5_VERSION=1.12.2
-ARG HDF5_URL=https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.2/src/hdf5-${HDF5_VERSION}.tar.gz
-ARG HDF5_TAR=hdf5-${HDF5_VERSION}.tar.gz
+ENV HDF5_URL=https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.2/src/hdf5-${HDF5_VERSION}.tar.gz
 ENV HDF5_DIR=${DEVSTK}/hdf5-${HDF5_VERSION}
-WORKDIR ${DEVSRC}/hdf5-${HDF5_VERSION}
-ADD --chown=dev:dev ${HDF5_URL}    ${DEVDNL}/${HDF5_TAR}
 RUN <<INSTALL_HDF5 bash
-  tar --strip-components=2 -xzf ${DEVDNL}/${HDF5_TAR}
-  mkdir build
-  cd build
-  ../configure --enable-fortran --prefix=${HDF5_DIR}
+  mkdir -p ${DEVSRC}/hdf5-${HDF5_VERSION}
+  cd ${DEVSRC}/hdf5-${HDF5_VERSION}
+  wget ${HDF5_URL} -O hdf5-${HDF5_VERSION}.tar.gz
+  tar --strip-components=2 -xzf hdf5-${HDF5_VERSION}.tar.gz
+  ./configure --enable-fortran --prefix=${HDF5_DIR}
   make all install
   cd ${DEVSRC} && rm -rf hdf5-${HDF5_VERSION}
 INSTALL_HDF5
@@ -137,17 +136,15 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HDF5_DIR}/lib"
 
 # install netcdf-c
 ENV NETCDF_VERSION=4.7.4
-ARG NETCDF_URL=https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDF_VERSION}.tar.gz
-ARG NETCDF_TAR=netcdfc-${NETCDF_VERSION}.tar.gz
+ENV NETCDF_URL=https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDF_VERSION}.tar.gz
 ENV NETCDF_DIR=${DEVSTK}/netcdf-${NETCDF_VERSION}
-WORKDIR ${DEVSRC}/netcdf-c-${NETCDF_VERSION}
-ADD --chown=dev:dev ${NETCDF_URL}  ${DEVDNL}/${NETCDF_TAR}
 RUN <<INSTALL_NETCDF_C bash
-  tar --strip-components=1 -xzf ${DEVDNL}/${NETCDF_TAR}
-  mkdir build
-  cd build
+  mkdir -p ${DEVSRC}/netcdf-c-${NETCDF_VERSION}
+  cd ${DEVSRC}/netcdf-c-${NETCDF_VERSION}
+  wget ${NETCDF_URL} -O netcdfc-${NETCDF_VERSION}.tar.gz
+  tar --strip-components=1 -xzf netcdfc-${NETCDF_VERSION}.tar.gz
   CPPFLAGS=-I${HDF5_DIR}/include LDFLAGS=-L${HDF5_DIR}/lib \
-  ../configure --enable-netcdf-4 --disable-dap --prefix=${NETCDF_DIR}
+  ./configure --enable-netcdf-4 --disable-dap --prefix=${NETCDF_DIR}
   make all install
   cd ${DEVSRC} && rm -rf netcdf-c-${NETCDF_VERSION}
 INSTALL_NETCDF_C
@@ -156,18 +153,15 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${NETCDF_DIR}/lib"
 
 # install netcdf-fortran into NETCDF_DIR
 ENV NETCDFF_VERSION=4.4.5
-ARG NETCDFF_URL=https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFF_VERSION}.tar.gz
-ARG NETCDFF_TAR=netcdff-${NETCDFF_VERSION}.tar.gz
-WORKDIR ${DEVSRC}/netcdf-fortran-${NETCDFF_VERSION}
-ADD --chown=dev:dev ${NETCDFF_URL} ${DEVDNL}/${NETCDFF_TAR}
+ENV NETCDFF_URL=https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFF_VERSION}.tar.gz
 RUN <<INSTALL_NETCDF_F bash
-  tar --strip-components=1 -xzf ${DEVDNL}/${NETCDFF_TAR}
-  mkdir build
-  cd build
+  mkdir -p ${DEVSRC}/netcdf-fortran-${NETCDFF_VERSION}
+  cd ${DEVSRC}/netcdf-fortran-${NETCDFF_VERSION}
+  wget ${NETCDFF_URL} -O netcdff-${NETCDFF_VERSION}.tar.gz
+  tar --strip-components=1 -xzf netcdff-${NETCDFF_VERSION}.tar.gz
   CPPFLAGS=-I${NETCDF_DIR}/include LDFLAGS=-L${NETCDF_DIR}/lib \
-  ../configure --prefix=${NETCDF_DIR}
+  ./configure --prefix=${NETCDF_DIR}
   make all install
-  rm -rf ${DEVSRC}/netcdf-fortran-${NETCDFF_VERSION}
   cd ${DEVSRC} && rm -rf netcdf-fortran-${NETCDFF_VERSION}
 INSTALL_NETCDF_F
 
