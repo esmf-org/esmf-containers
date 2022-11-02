@@ -28,6 +28,7 @@ LABEL "org.earthsystemmodeling.compiler.vers"=${COMPILER_VERSION}
 RUN <<ROOT_SETUP bash
   echo 'root:password' | chpasswd
   ln -sf /bin/bash /bin/sh
+  ln -sf /usr/bin/make /usr/bin/gmake
 ROOT_SETUP
 
 # install packages
@@ -49,7 +50,8 @@ RUN <<INSTALL_PACKAGES bash
     python3 \
     python3-pip \
     git \
-    vim
+    vim \
+    csh
   apt-get clean
   pip3 install PyYAML
 INSTALL_PACKAGES
