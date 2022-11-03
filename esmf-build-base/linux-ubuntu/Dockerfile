@@ -44,6 +44,7 @@ RUN <<INSTALL_PACKAGES bash
     csh
   apt-get clean
   pip3 install PyYAML
+  pip3 install numpy
 INSTALL_PACKAGES
 
 # system setup
@@ -51,6 +52,7 @@ RUN <<SYSTEM_SETUP bash
   echo 'root:password' | chpasswd
   ln -sf /bin/bash /bin/sh
   ln -sf /usr/bin/make /usr/bin/gmake
+  ln -sf /usr/bin/python3 /usr/bin/python
 SYSTEM_SETUP
 
 # set compilers
