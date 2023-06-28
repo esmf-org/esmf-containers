@@ -27,7 +27,7 @@ RUN <<ADD_DIRECTORIES bash
 ADD_DIRECTORIES
 
 # install cmake
-ENV CMAKE_VERSION="3.18.2"
+ENV CMAKE_VERSION="3.24.3"
 ENV CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz"
 ENV CMAKE_DIR="${STACK_DIR}/cmake-${CMAKE_VERSION}"
 RUN <<INSTALL_CMAKE bash
