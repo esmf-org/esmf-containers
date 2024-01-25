@@ -3,18 +3,15 @@
 # base image
 FROM ubuntu:20.04
 
-# non interactive mode
-ENV DEBIAN_FRONTEND noninteractive
-
-# environment variables passed to image
-ENV SYS_ABI="64"
-ENV SYS_OS="Linux"
-ENV SYS_COMPILER="gfortran"
-ENV SYS_COMPILER_VERSION="9"
+# information passed to image
+ARG SYS_ABI="64"
+ARG SYS_OS="Linux"
+ARG SYS_COMPILER="gfortran"
+ARG SYS_COMPILER_VERSION="9"
 
 # labels
 LABEL description="Base Image for ESMF Build Environment" \
-      version="1.0" \
+      version="2.0" \
       org.earthsystemmodeling.system.abi="${SYS_ABI}" \
       org.earthsystemmodeling.system.os="${SYS_OS}" \
       org.earthsystemmodeling.system.compiler="${SYS_COMPILER}" \
@@ -28,20 +25,23 @@ RUN <<INSTALL_PACKAGES bash
   dpkg-reconfigure --frontend noninteractive tzdata
   apt-get install -y \
     build-essential \
+    ca-certificates \
+    coreutils \
+    environment-modules \
     gcc-9 \
     gfortran-9 \
+    gpg \
     wget \
     curl \
-    m4 \
-    zlib1g \
-    zlib1g-dev \
-    libssl-dev \
+    lsb-release \
     python3 \
+    python3-distutils \
     python3-pip \
+    python3-venv \
     git \
     vim \
-    openssh-client \
-    csh
+    unzip \
+    zip
   apt-get clean
   pip3 install PyYAML
   pip3 install numpy
@@ -55,16 +55,12 @@ RUN <<SYSTEM_SETUP bash
   ln -sf /usr/bin/python3 /usr/bin/python
 SYSTEM_SETUP
 
-# set compilers
-ENV CC="gcc-9" \
-    CXX="g++-9" \
-    F77="gfortran-9" \
-    F90="gfortran-9" \
-    FC="gfortran-9"
-
 # create users
-ENV USER="dev"
-ENV HOME="/home/${USER}"
+ARG USER="${USER:-dev}"
+ARG HOME="${HOME:-/home/${USER}}"
+ARG SOURCE_DIR="${SOURCE_DIR:-${HOME}/source}" \
+    INSTALL_DIR="${INSTALL_DIR:-${HOME}/install}" \
+    SPACK_ROOT="${SPACK_ROOT:-${HOME}/spack}"
 RUN <<ADD_USER bash
   groupadd -r ${USER}
   useradd -r -m -d ${HOME} -s /bin/bash -g ${USER} ${USER}
@@ -72,9 +68,31 @@ RUN <<ADD_USER bash
 ADD_USER
 
 USER ${USER}
+WORKDIR ${HOME}
+
+# create user directories
+RUN <<ADD_DIRECTORIES bash
+  mkdir -p ${DOWNLOAD_DIR}
+  mkdir -p ${SOURCE_DIR}
+  mkdir -p ${INSTALL_DIR}
+  mkdir -p ${SPACK_ROOT}
+ADD_DIRECTORIES
+
+RUN <<INSTALL_SPACK bash
+  git clone --depth=1 --branch=releases/v0.21 https://github.com/spack/spack.git ${SPACK_ROOT}
+INSTALL_SPACK
+
+# set environment
+ENV USER="${USER}" \
+    HOME="${HOME}" \
+    SOURCE_DIR="${SOURCE_DIR}" \
+    INSTALL_DIR="${INSTALL_DIR}" \
+    SPACK_ROOT="${SPACK_ROOT}" \
+    SYS_ABI="${SYS_ABI}" \
+    SYS_OS="${SYS_OS}" \
+    SYS_COMPILER="${SYS_COMPILER}" \
+    SYS_COMPILER_VERSION="${SYS_COMPILER_VERSION}"
 
 # default execution command
-WORKDIR ${HOME}
-SHELL ["/bin/bash","-ec"]
-CMD ["/bin/bash","-l"]
-
+COPY --chown=dev:dev bashrc /home/dev/.bashrc
+ENTRYPOINT ["/bin/bash", "-l"]

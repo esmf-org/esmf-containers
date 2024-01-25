@@ -1,0 +1,30 @@
+# spack setup
+. ${SPACK_ROOT}/share/spack/setup-env.sh
+if [[ -v SPACK_ENV_DEFAULT ]]; then
+spack env activate -p ${SPACK_ENV_DEFAULT}
+fi
+
+# begin login message
+printf "==================================================\n"
+printf "Docker Image by ESMF\n\n"
+# esmf info
+printf "  esmf:\n"
+printf "    https://earthsystemmodeling.org/doc/\n"
+if [[ -v ESMF_VERSION ]]; then
+printf "    version=${ESMF_VERSION}\n"
+elif [[ -v ESMFMKFILE ]]; then
+printf "    `grep ESMF_VERSION_STRING= $ESMFMKFILE`\n"
+else
+printf "    (not installed)\n"
+fi
+# spack info
+printf "  spack:\n"
+printf "    https://spack.readthedocs.io/en/latest/\n"
+printf "    version=`spack --version`\n"
+if [[ -v SPACK_ENV ]]; then
+printf "    environment=${SPACK_ENV}\n"
+printf "      to list installed packages > spack find\n"
+printf "      to exit environment > despacktivate\n"
+fi
+# end login message
+printf "==================================================\n"
