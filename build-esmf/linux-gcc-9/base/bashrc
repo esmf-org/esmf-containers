@@ -3,6 +3,10 @@
 if [[ -v SPACK_ENV_DEFAULT ]]; then
 spack env activate -p ${SPACK_ENV_DEFAULT}
 fi
+# load modules
+if [[ -v MODULES_DEFAULT ]]; then
+ module --silent load ${MODULES_DEFAULT}
+fi
 
 # begin login message
 printf "==================================================\n"
@@ -26,5 +30,8 @@ printf "    environment=${SPACK_ENV}\n"
 printf "      to list installed packages > spack find\n"
 printf "      to exit environment > despacktivate\n"
 fi
+# module info
+printf "\n"
+module list
 # end login message
 printf "==================================================\n"
