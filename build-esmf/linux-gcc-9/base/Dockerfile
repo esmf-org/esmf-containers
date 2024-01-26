@@ -60,6 +60,7 @@ ARG USER="${USER:-dev}"
 ARG HOME="${HOME:-/home/${USER}}"
 ARG SOURCE_DIR="${SOURCE_DIR:-${HOME}/source}" \
     INSTALL_DIR="${INSTALL_DIR:-${HOME}/install}" \
+    EXAMPLES_DIR="${EXAMPLES_DIR:-${HOME}/examples}" \
     SPACK_ROOT="${SPACK_ROOT:-${HOME}/spack}"
 RUN <<ADD_USER bash
   groupadd -r ${USER}
@@ -75,11 +76,15 @@ RUN <<ADD_DIRECTORIES bash
   mkdir -p ${DOWNLOAD_DIR}
   mkdir -p ${SOURCE_DIR}
   mkdir -p ${INSTALL_DIR}
+  mkdir -p ${EXAMPLES_DIR}
   mkdir -p ${SPACK_ROOT}
 ADD_DIRECTORIES
 
+# spack v0.21.1 (2024-01-11) does not work with esmf version 8.6.0+
+# using spack tag: develop-2024-01-21
+# version: 02dc10c0532fc36f36d1c3e2d1feb6d2b0e57b8a
 RUN <<INSTALL_SPACK bash
-  git clone --depth=1 --branch=releases/v0.21 https://github.com/spack/spack.git ${SPACK_ROOT}
+  git clone --depth=1 --branch=develop-2024-01-21 https://github.com/spack/spack.git ${SPACK_ROOT}
 INSTALL_SPACK
 
 # set environment
@@ -87,6 +92,7 @@ ENV USER="${USER}" \
     HOME="${HOME}" \
     SOURCE_DIR="${SOURCE_DIR}" \
     INSTALL_DIR="${INSTALL_DIR}" \
+    EXAMPLES_DIR="${EXAMPLES_DIR}" \
     SPACK_ROOT="${SPACK_ROOT}" \
     SYS_ABI="${SYS_ABI}" \
     SYS_OS="${SYS_OS}" \

@@ -13,50 +13,35 @@ LABEL description="Build Image for ESMF ${ESMF_VERSION}" \
       org.earthsystemmodeling.esmf.version="${ESMF_VERSION}"
 
 # install esmf
-ENV ESMF_VERSION="${ESMF_VERSION}"
-ENV ESMF_URL="https://github.com/esmf-org/esmf/archive/refs/tags/v${ESMF_VERSION}.tar.gz"
-ENV ESMF_DIR="${SOURCE_DIR}/esmf-${ESMF_VERSION}"
-ENV ESMF_BOPT="O"
-ENV ESMF_ABI="${SYS_ABI}"
-ENV ESMF_OS="${SYS_OS}"
-ENV ESMF_COMPILER="${STACK_COMPILER}"
-ENV ESMF_COMM="${STACK_COMM}"
-ENV ESMF_SITE="default"
-ENV ESMF_NETCDF="nc-config"
-ENV ESMF_ARRAY_LITE="FALSE"
-ENV ESMF_NO_INTEGER_1_BYTE="TRUE"
-ENV ESMF_NO_INTEGER_2_BYTE="TRUE"
-ENV ESMF_FORTRANSYMBOLS="default"
-ENV ESMF_MAPPER_BUILD="OFF"
-ENV ESMF_AUTO_LIB_BUILD="ON"
-ENV ESMF_DEFER_LIB_BUILD="ON"
-ENV ESMF_SHARED_LIB_BUILD="ON"
-ENV ESMF_INSTALL_MODDIR="mod"
-ENV ESMF_INSTALL_BINDIR="bin"
-ENV ESMF_INSTALL_LIBDIR="lib"
-ENV ESMF_INSTALL_PREFIX="${INSTALL_DIR}/esmf-${ESMF_VERSION}"
 RUN <<INSTALL_ESMF bash
+  . ${SPACK_ROOT}/share/spack/setup-env.sh
+  spack env activate ${SPACK_ENV_DEFAULT}
+  spack install --add esmf@${ESMF_VERSION}~external-parallelio~pnetcdf
+  spack gc -y
+  spack clean --all
+INSTALL_ESMF
+
+# install esmpy
+ARG ESMF_URL="https://github.com/esmf-org/esmf/archive/refs/tags/v${ESMF_VERSION}.tar.gz"
+ARG ESMF_DIR="${SOURCE_DIR}/esmf-${ESMF_VERSION}"
+RUN <<INSTALL_ESMPY bash
   . ${SPACK_ROOT}/share/spack/setup-env.sh
   spack env activate ${SPACK_ENV_DEFAULT}
   mkdir -p ${ESMF_DIR}
   cd ${ESMF_DIR}
   curl -L ${ESMF_URL} | tar --strip-components=1 -xz
-  make -j 2
-  make install
   cd ${ESMF_DIR}/src/addon/esmpy
   pip3 install .
   cd ${SOURCE_DIR} && rm -rf ${ESMF_DIR}
-INSTALL_ESMF
-ENV PATH="${PATH}:${ESMF_INSTALL_PREFIX}/bin"
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${ESMF_INSTALL_PREFIX}/lib"
-ENV ESMFMKFILE="${ESMF_INSTALL_PREFIX}/lib/esmf.mk"
+INSTALL_ESMPY
 
 # download prototypes
-ENV PROTO_VERSION="${ESMF_VERSION}"
-ENV PROTO_URL="https://github.com/esmf-org/nuopc-app-prototypes/archive/refs/tags/v${PROTO_VERSION}.tar.gz"
-ENV PROTO_DIR="${SOURCE_DIR}/nuopc-app-prototypes-${PROTO_VERSION}"
+ARG PROTO_URL="https://github.com/esmf-org/nuopc-app-prototypes/archive/refs/tags/v${ESMF_VERSION}.tar.gz"
+ARG PROTO_DIR="${EXAMPLES_DIR}/nuopc-app-prototypes-${ESMF_VERSION}"
 RUN <<INSTALL_PROTOTYPES bash
   mkdir -p ${PROTO_DIR}
   cd ${PROTO_DIR}
   curl -L ${PROTO_URL} | tar --strip-components=1 -xz
 INSTALL_PROTOTYPES
+
+ENV ESMF_VERSION="${ESMF_VERSION}"
