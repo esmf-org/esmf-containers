@@ -30,6 +30,7 @@ RUN <<INSTALL_PACKAGES bash
     environment-modules \
     gcc-9 \
     gfortran-9 \
+    gdb \
     gpg \
     wget \
     curl \

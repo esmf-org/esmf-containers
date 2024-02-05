@@ -7,10 +7,22 @@ fi
 if [[ -v MODULES_DEFAULT ]]; then
  module --silent load ${MODULES_DEFAULT}
 fi
+# debug mode
+if [ "${DEBUG}" = "y" ] || [ "${DEBUG}" = "Y" ] || [ "${DEBUG}" = "1" ]; then
+ulimit -c unlimited
+export GFORTRAN_ERROR_DUMPCORE="y"
+export decfort_dump_flag="y"
+export CMAKE_BUILD_TYPE="Debug"
+fi
 
 # begin login message
 printf "==================================================\n"
 printf "Docker Image by ESMF\n\n"
+# debug info
+if [ "${DEBUG}" = "y" ] || [ "${DEBUG}" = "Y" ] || [ "${DEBUG}" = "1" ]; then
+printf "  debug:\n"
+printf "    status=on\n"
+fi
 # esmf info
 printf "  esmf:\n"
 printf "    https://earthsystemmodeling.org/doc/\n"
