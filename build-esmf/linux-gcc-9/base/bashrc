@@ -37,9 +37,9 @@ fi
 printf "  spack:\n"
 printf "    https://spack.readthedocs.io/en/latest/\n"
 printf "    version=`spack --version`\n"
+printf "      to list installed packages > spack find\n"
 if [[ -v SPACK_ENV ]]; then
 printf "    environment=${SPACK_ENV}\n"
-printf "      to list installed packages > spack find\n"
 printf "      to exit environment > despacktivate\n"
 fi
 # module info

@@ -15,8 +15,7 @@ LABEL description="Build Image for ESMF ${ESMF_VERSION}" \
 # install esmf
 RUN <<INSTALL_ESMF bash
   . ${SPACK_ROOT}/share/spack/setup-env.sh
-  spack env activate ${SPACK_ENV_DEFAULT}
-  spack install --add esmf@${ESMF_VERSION}~external-parallelio~pnetcdf
+  spack install esmf@${ESMF_VERSION}~external-parallelio~pnetcdf
   spack gc -y
   spack clean --all
 INSTALL_ESMF
@@ -26,7 +25,6 @@ ARG ESMF_URL="https://github.com/esmf-org/esmf/archive/refs/tags/v${ESMF_VERSION
 ARG ESMF_DIR="${SOURCE_DIR}/esmf-${ESMF_VERSION}"
 RUN <<INSTALL_ESMPY bash
   . ${SPACK_ROOT}/share/spack/setup-env.sh
-  spack env activate ${SPACK_ENV_DEFAULT}
   mkdir -p ${ESMF_DIR}
   cd ${ESMF_DIR}
   curl -L ${ESMF_URL} | tar --strip-components=1 -xz
