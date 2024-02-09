@@ -34,6 +34,7 @@ RUN <<INSTALL_PACKAGES bash
     gpg \
     wget \
     curl \
+    libssl-dev \
     lsb-release \
     python3 \
     python3-distutils \
@@ -87,6 +88,13 @@ ADD_DIRECTORIES
 RUN <<INSTALL_SPACK bash
   git clone --depth=1 --branch=develop-2024-01-21 https://github.com/spack/spack.git ${SPACK_ROOT}
 INSTALL_SPACK
+
+RUN <<SETUP_SPACK bash
+  . ${SPACK_ROOT}/share/spack/setup-env.sh
+  spack compiler find
+  spack external find openssl
+  spack config add "packages:openssl:buildable:False"
+SETUP_SPACK
 
 # set environment
 ENV USER="${USER}" \

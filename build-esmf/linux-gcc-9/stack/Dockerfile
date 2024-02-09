@@ -10,7 +10,20 @@ LABEL description="Stack Image by ESMF Build Environment" \
       org.earthsystemmodeling.stack.compiler="${SYS_COMPILER}" \
       org.earthsystemmodeling.stack.comm="openmpi"
 
-# setup spack
+# install software stack
+RUN <<INSTALL_STACK bash
+  . ${SPACK_ROOT}/share/spack/setup-env.sh
+  spack install lmod@8.7.24
+  spack install cmake@3.24.3
+  spack install openmpi@4.1.6%gcc
+  spack install hdf5@1.12.2+fortran
+  spack install netcdf-c@4.7.4
+  spack install netcdf-fortran@4.4.5
+  spack gc -y
+  spack clean --all
+INSTALL_STACK
+
+# setup modules
 RUN <<SETUP_MODULES bash -x
   . ${SPACK_ROOT}/share/spack/setup-env.sh
   spack config add "modules:default:enable:[tcl]"
@@ -21,21 +34,10 @@ RUN <<SETUP_MODULES bash -x
   spack config add "modules:default:tcl:openmpi:environment:set:F77:mpif77"
   spack config add "modules:default:tcl:openmpi:environment:set:F90:mpif90"
   spack config add "modules:default:tcl:openmpi:environment:set:FC:mpifort"
-  spack install lmod@8.7.24
-SETUP_MODULES
-
-# install software stack
-RUN <<INSTALL_STACK bash
-  . ${SPACK_ROOT}/share/spack/setup-env.sh
-  spack install cmake@3.24.3
-  spack install openmpi@4.1.6%gcc
-  spack install hdf5@1.12.2+fortran
-  spack install netcdf-c@4.7.4
-  spack install netcdf-fortran@4.4.5
-  spack gc -y
-  spack clean --all
+  spack config add "modules:default:tcl:netcdf-c:environment:append_path:LD_LIBRARY_PATH:'{prefix}/lib'"
+  spack config add "modules:default:tcl:netcdf-fortran:environment:append_path:LD_LIBRARY_PATH:'{prefix}/lib'"
   spack module tcl refresh --delete-tree -y
-INSTALL_STACK
+SETUP_MODULES
 
 # set environment
 ENV MODULES_DEFAULT="cmake openmpi hdf5 netcdf-c netcdf-fortran" \
