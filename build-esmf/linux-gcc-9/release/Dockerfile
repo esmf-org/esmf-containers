@@ -15,7 +15,7 @@ LABEL description="Build Image for ESMF ${ESMF_VERSION}" \
 # install esmf
 RUN <<INSTALL_ESMF bash
   . ${SPACK_ROOT}/share/spack/setup-env.sh
-  spack install esmf@${ESMF_VERSION}~external-parallelio~pnetcdf
+  spack install --no-checksum esmf@=${ESMF_VERSION}~external-parallelio~pnetcdf
   spack gc -y
   spack clean --all
 INSTALL_ESMF

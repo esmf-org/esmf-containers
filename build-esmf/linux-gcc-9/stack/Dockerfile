@@ -41,5 +41,5 @@ SETUP_MODULES
 
 # set environment
 ENV MODULES_DEFAULT="cmake openmpi hdf5 netcdf-c netcdf-fortran" \
-    STACK_COMPILER="${SYSTEM_COMPILER}" \
+    STACK_COMPILER="${SYS_COMPILER}" \
     STACK_COMM="openmpi"
