@@ -16,7 +16,7 @@ ENV ARTIFACTS=/artifacts/doc-esmpy
 RUN mkdir -p ${ARTIFACTS}
 
 WORKDIR /opt/
-RUN git clone --branch ${ESMF_BRANCH} --depth 1 https://github.com/esmf-org/esmf.git
+RUN git clone --branch ${ESMF_BRANCH} https://github.com/esmf-org/esmf.git
 
 ENV ESMF_DIR=/opt/esmf
 ENV ESMF_INSTALL_PREFIX=/usr/local
