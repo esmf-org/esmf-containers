@@ -1,13 +1,22 @@
-FROM ubuntu:focal
+FROM ubuntu:plucky
 
-ENV _DEBIAN_FRONTEND=$DEBIAN_FRONTEND
-# Avoid having to interact with terminal when installing time-related packages
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get --yes update && apt-get --yes install latexmk texlive-fonts-recommended \
-    texlive-latex-recommended texlive-latex-extra build-essential gfortran git \
+# install packages
+RUN <<INSTALL_PACKAGES bash
+  apt-get update
+  ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
+  apt-get install -y tzdata
+  dpkg-reconfigure --frontend noninteractive tzdata
+  apt-get install -y \
+    latexmk \
+    texlive-fonts-recommended \
+    texlive-latex-recommended \
+    texlive-latex-extra \
+    build-essential \
+    gfortran \
+    git \
     python3-pip
-ENV DEBIAN_FRONTEND=$_DEBIAN_FRONTEND
-ENV _DEBIAN_FRONTEND=""
+  apt-get clean
+INSTALL_PACKAGES
 
 ARG ESMF_BRANCH="develop"
 RUN echo "ESMF_BRANCH=$ESMF_BRANCH"
@@ -31,7 +40,11 @@ RUN make -j 2
 RUN make install
 
 ENV ESMFMKFILE=${ESMF_INSTALL_LIBDIR}/esmf.mk
-RUN pip3 install sphinx sphinxcontrib-packages sphinxcontrib-bibtex
+RUN <<INSTALL_SPHINX bash
+  python3 -m pip config set global.break-system-packages true
+  python3 -m pip install sphinx sphinxcontrib-packages sphinxcontrib-bibtex
+  python3 -m pip config set global.break-system-packages false
+INSTALL_SPHINX
 
 WORKDIR ${ESMF_DIR}/src/addon/esmpy
 RUN python3 -m pip install .
