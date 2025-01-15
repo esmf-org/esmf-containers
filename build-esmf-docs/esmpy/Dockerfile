@@ -44,15 +44,16 @@ ENV ESMFMKFILE=${ESMF_INSTALL_LIBDIR}/esmf.mk
 
 # The system doesn't allow installing packages globally with pip (unless adding "python3
 # -m pip config set global.break-system-packages true"), so install in a virtual environment.
+WORKDIR /opt/
 RUN python3 -m venv --system-site-packages esmpy_venv
-RUN . esmpy_venv/bin/activate
+ENV PYTHON_VENV_ACTIVATE=/opt/esmpy_venv/bin/activate
 
-RUN python3 -m pip install sphinx sphinxcontrib-packages sphinxcontrib-bibtex
+RUN . ${PYTHON_VENV_ACTIVATE} && python3 -m pip install sphinx sphinxcontrib-packages sphinxcontrib-bibtex
 
 WORKDIR ${ESMF_DIR}/src/addon/esmpy
-RUN python3 -m pip install .
+RUN . ${PYTHON_VENV_ACTIVATE} && python3 -m pip install .
 WORKDIR doc
-RUN make html latexpdf
+RUN . ${PYTHON_VENV_ACTIVATE} && make html latexpdf
 RUN deactivate
 
 RUN cp -r esmpy_doc ${ARTIFACTS} && \
