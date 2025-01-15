@@ -47,9 +47,7 @@ ENV ESMFMKFILE=${ESMF_INSTALL_LIBDIR}/esmf.mk
 RUN python3 -m venv --system-site-packages esmpy_venv
 RUN . esmpy_venv/bin/activate
 
-RUN <<INSTALL_SPHINX bash
-  python3 -m pip install sphinx sphinxcontrib-packages sphinxcontrib-bibtex
-INSTALL_SPHINX
+RUN python3 -m pip install sphinx sphinxcontrib-packages sphinxcontrib-bibtex
 
 WORKDIR ${ESMF_DIR}/src/addon/esmpy
 RUN python3 -m pip install .
