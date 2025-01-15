@@ -54,7 +54,6 @@ WORKDIR ${ESMF_DIR}/src/addon/esmpy
 RUN . ${PYTHON_VENV_ACTIVATE} && python3 -m pip install .
 WORKDIR doc
 RUN . ${PYTHON_VENV_ACTIVATE} && make html latexpdf
-RUN deactivate
 
 RUN cp -r esmpy_doc ${ARTIFACTS} && \
     cd /artifacts && \
