@@ -14,7 +14,8 @@ RUN <<INSTALL_PACKAGES bash
     build-essential \
     gfortran \
     git \
-    python3-pip
+    python3-pip \
+    python3-venv
   apt-get clean
 INSTALL_PACKAGES
 
