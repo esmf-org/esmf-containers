@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # base image
-ARG BASE_IMAGE="${BASE_IMAGE:-esmf/esmf-build-base:latest}"
+ARG BASE_IMAGE="esmf/esmf-build-base:latest"
 FROM ${BASE_IMAGE}
 
 # labels
@@ -11,7 +11,7 @@ LABEL description="Stack Image by ESMF Build Environment" \
       org.earthsystemmodeling.stack.comm="openmpi"
 
 # install software stack
-RUN <<INSTALL_STACK bash
+RUN <<INSTALL_STACK bash -e
   . ${SPACK_ROOT}/share/spack/setup-env.sh
   spack install lmod@8.7.24
   spack install cmake@3.24.3
@@ -24,7 +24,7 @@ RUN <<INSTALL_STACK bash
 INSTALL_STACK
 
 # setup modules
-RUN <<SETUP_MODULES bash -x
+RUN <<SETUP_MODULES bash -e
   . ${SPACK_ROOT}/share/spack/setup-env.sh
   spack config add "modules:default:enable:[tcl]"
   spack config add "modules:default:tcl:hash_length:0"
