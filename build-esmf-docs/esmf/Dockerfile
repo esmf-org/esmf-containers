@@ -33,7 +33,7 @@ RUN make
 WORKDIR ${ESMF_DIR}
 RUN cp -rv doc ${ESMF_ARTIFACTS}/doc-esmf
 RUN mkdir ${ESMF_ARTIFACTS}/doc-dvi
-RUN cp -v src/doc/*dvi src/addon/NUOPC/doc/*.dvi ${ESMF_ARTIFACTS}/doc-div
+RUN cp -v src/doc/*.dvi src/addon/NUOPC/doc/*.dvi ${ESMF_ARTIFACTS}/doc-div
 RUN mkdir ${ESMF_ARTIFACTS}/doc-nuopc
 RUN cp -rv src/addon/NUOPC/doc/*.pdf src/addon/NUOPC/doc/NUOPC_refdoc src/addon/NUOPC/doc/NUOPC_howtodoc ${ESMF_ARTIFACTS}/doc-nuopc
 RUN mkdir ${ESMF_ARTIFACTS}/doc-dev_guide
