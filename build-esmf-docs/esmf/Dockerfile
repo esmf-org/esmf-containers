@@ -2,7 +2,7 @@
 # Build and collect ESMF documentation #
 ########################################
 
-FROM esmf/build-esmf-docs-base:2022-07-28
+FROM esmf/build-esmf-docs-base:ubuntu-25.04
 
 ARG ESMF_BRANCH="develop"
 RUN echo "ESMF_BRANCH=$ESMF_BRANCH"
