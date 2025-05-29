@@ -4,8 +4,10 @@
 
 FROM esmf/build-esmf-docs-base:2022-07-28
 
+ARG ESMF_REPOSITORY="https://github.com/esmf-org/esmf.git"
 ARG ESMF_BRANCH="develop"
-RUN echo "ESMF_BRANCH=$ESMF_BRANCH"
+RUN echo "ESMF_REPOSITORY=$ESMF_REPOSITORY\n\
+          ESMF_BRANCH=$ESMF_BRANCH"
 
 # Where documentation artifacts will be stored in the container
 ENV ESMF_ARTIFACTS=/artifacts
@@ -13,7 +15,7 @@ RUN mkdir -p ${ESMF_ARTIFACTS}
 
 # Clone ESMF
 WORKDIR ${HOME}/sandbox/esmf
-RUN git clone --branch ${ESMF_BRANCH} https://github.com/esmf-org/esmf.git src-git
+RUN git clone --branch ${ESMF_BRANCH} ${ESMF_REPOSITORY} src-git
 
 ENV ESMF_DIR=${HOME}/sandbox/esmf/src-git
 

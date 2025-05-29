@@ -19,14 +19,16 @@ RUN <<INSTALL_PACKAGES bash
   apt-get clean
 INSTALL_PACKAGES
 
+ARG ESMF_REPOSITORY="https://github.com/esmf-org/esmf.git"
 ARG ESMF_BRANCH="develop"
-RUN echo "ESMF_BRANCH=$ESMF_BRANCH"
+RUN echo "ESMF_REPOSITORY=$ESMF_REPOSITORY\n\
+          ESMF_BRANCH=$ESMF_BRANCH"
 
 ENV ARTIFACTS=/artifacts/doc-esmpy
 RUN mkdir -p ${ARTIFACTS}
 
 WORKDIR /opt/
-RUN git clone --branch ${ESMF_BRANCH} https://github.com/esmf-org/esmf.git
+RUN git clone --branch ${ESMF_BRANCH} ${ESMF_REPOSITORY}
 
 ENV ESMF_DIR=/opt/esmf
 ENV ESMF_INSTALL_PREFIX=/usr/local
