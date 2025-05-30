@@ -39,6 +39,7 @@ ENV ESMF_INSTALL_LIBDIR=${ESMF_INSTALL_PREFIX}/lib
 ENV ESMF_INSTALL_MODDIR=${ESMF_INSTALL_PREFIX}/mod
 
 WORKDIR ${ESMF_DIR}
+RUN git fetch --tags https://github.com/esmf-org/esmf.git
 RUN make -j 2
 RUN make install
 
