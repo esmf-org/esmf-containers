@@ -28,9 +28,9 @@ ENV ARTIFACTS=/artifacts/doc-esmpy
 RUN mkdir -p ${ARTIFACTS}
 
 WORKDIR /opt/
-RUN git clone --branch ${ESMF_BRANCH} ${ESMF_REPOSITORY}
+RUN git clone ${ESMF_REPOSITORY} src-git
 
-ENV ESMF_DIR=/opt/esmf
+ENV ESMF_DIR=/opt/src-git
 ENV ESMF_INSTALL_PREFIX=/usr/local
 ENV ESMF_INSTALL_BINDIR=${ESMF_INSTALL_PREFIX}/bin
 ENV ESMF_INSTALL_DOCDIR=${ESMF_INSTALL_PREFIX}/doc
@@ -39,7 +39,7 @@ ENV ESMF_INSTALL_LIBDIR=${ESMF_INSTALL_PREFIX}/lib
 ENV ESMF_INSTALL_MODDIR=${ESMF_INSTALL_PREFIX}/mod
 
 WORKDIR ${ESMF_DIR}
-RUN git fetch --tags https://github.com/esmf-org/esmf.git
+RUN git checkout --detach && git fetch origin ${ESMF_BRANCH}:${ESMF_BRANCH} && git checkout ${ESMF_BRANCH} && git fetch --tags https://github.com/esmf-org/esmf.git
 RUN make -j 2
 RUN make install
 

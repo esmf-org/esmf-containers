@@ -15,13 +15,13 @@ RUN mkdir -p ${ESMF_ARTIFACTS}
 
 # Clone ESMF
 WORKDIR ${HOME}/sandbox/esmf
-RUN git clone --branch ${ESMF_BRANCH} ${ESMF_REPOSITORY} src-git
+RUN git clone ${ESMF_REPOSITORY} src-git
 
 ENV ESMF_DIR=${HOME}/sandbox/esmf/src-git
 
 # Fetch tags
 WORKDIR ${ESMF_DIR}
-RUN git fetch --tags https://github.com/esmf-org/esmf.git
+RUN git checkout --detach && git fetch origin ${ESMF_BRANCH}:${ESMF_BRANCH} && git checkout ${ESMF_BRANCH} && git fetch --tags https://github.com/esmf-org/esmf.git
 
 # Make the NUOPC documentation
 WORKDIR ${ESMF_DIR}/src/addon/NUOPC/doc
