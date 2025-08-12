@@ -39,7 +39,12 @@ ENV ESMF_INSTALL_LIBDIR=${ESMF_INSTALL_PREFIX}/lib
 ENV ESMF_INSTALL_MODDIR=${ESMF_INSTALL_PREFIX}/mod
 
 WORKDIR ${ESMF_DIR}
-RUN git checkout --detach && git fetch origin ${ESMF_BRANCH}:${ESMF_BRANCH} && git checkout ${ESMF_BRANCH} && git fetch --tags https://github.com/esmf-org/esmf.git
+RUN if git show-ref --quiet ${ESMF_BRANCH}; then \
+  git checkout ${ESMF_BRANCH} && git fetch --tags https://github.com/esmf-org/esmf.git; \
+  else \
+  git checkout --detach && git fetch origin ${ESMF_BRANCH}:${ESMF_BRANCH} && git checkout ${ESMF_BRANCH} && git fetch --tags https://github.com/esmf-org/esmf.git; \
+  fi
+
 RUN make -j 2
 RUN make install
 

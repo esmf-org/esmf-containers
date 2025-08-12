@@ -21,7 +21,11 @@ ENV ESMF_DIR=${HOME}/sandbox/esmf/src-git
 
 # Fetch tags
 WORKDIR ${ESMF_DIR}
-RUN git checkout --detach && git fetch origin ${ESMF_BRANCH}:${ESMF_BRANCH} && git checkout ${ESMF_BRANCH} && git fetch --tags https://github.com/esmf-org/esmf.git
+RUN if git show-ref --quiet ${ESMF_BRANCH}; then \
+  git checkout ${ESMF_BRANCH} && git fetch --tags https://github.com/esmf-org/esmf.git; \
+  else \
+  git checkout --detach && git fetch origin ${ESMF_BRANCH}:${ESMF_BRANCH} && git checkout ${ESMF_BRANCH} && git fetch --tags https://github.com/esmf-org/esmf.git; \
+  fi
 
 # Make the NUOPC documentation
 WORKDIR ${ESMF_DIR}/src/addon/NUOPC/doc
