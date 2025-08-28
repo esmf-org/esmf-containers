@@ -5,38 +5,29 @@ ARG STACK_IMAGE="${STACK_IMAGE:-esmf/esmf-build-stack:latest}"
 FROM ${STACK_IMAGE}
 
 # build arguments
-ARG ESMF_VERSION=${ESMF_VERSION:-8.0.0}
+ARG ESMF_VERSION=${ESMF_VERSION:-8.9.0}
 
 # labels
 LABEL description="Build Image for ESMF ${ESMF_VERSION}" \
-      version="2.0" \
+      version="3.0" \
       org.earthsystemmodeling.esmf.version="${ESMF_VERSION}"
 
 # install esmf
-RUN <<INSTALL_ESMF bash -e
+RUN <<INSTALL_ESMF
   . ${SPACK_ROOT}/share/spack/setup-env.sh
-  spack install --no-checksum esmf@=${ESMF_VERSION}~external-parallelio~pnetcdf
+  spack env activate ${SPACK_ENV_DEFAULT}
+  spack add esmf@=${ESMF_VERSION}~external-parallelio~pnetcdf+python
+  spack install --no-checksum
   spack gc -y
   spack clean --all
 INSTALL_ESMF
 
-# install esmpy
-ARG ESMF_URL="https://github.com/esmf-org/esmf/archive/refs/tags/v${ESMF_VERSION}.tar.gz"
-ARG ESMF_DIR="${SOURCE_DIR}/esmf-${ESMF_VERSION}"
-RUN <<INSTALL_ESMPY bash -e
-  . ${SPACK_ROOT}/share/spack/setup-env.sh
-  mkdir -p ${ESMF_DIR}
-  cd ${ESMF_DIR}
-  curl -L ${ESMF_URL} | tar --strip-components=1 -xz
-  cd ${ESMF_DIR}/src/addon/esmpy
-  pip3 install --break-system-packages .
-  cd ${SOURCE_DIR} && rm -rf ${ESMF_DIR}
-INSTALL_ESMPY
-
 # download prototypes
 ARG PROTO_URL="https://github.com/esmf-org/nuopc-app-prototypes/archive/refs/tags/v${ESMF_VERSION}.tar.gz"
 ARG PROTO_DIR="${EXAMPLES_DIR}/nuopc-app-prototypes-${ESMF_VERSION}"
-RUN <<INSTALL_PROTOTYPES bash -e
+RUN <<INSTALL_PROTOTYPES
+  . ${SPACK_ROOT}/share/spack/setup-env.sh
+  spack env activate ${SPACK_ENV_DEFAULT}
   mkdir -p ${PROTO_DIR}
   cd ${PROTO_DIR}
   curl -L ${PROTO_URL} | tar --strip-components=1 -xz

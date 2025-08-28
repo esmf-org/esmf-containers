@@ -1,11 +1,14 @@
 # spack setup
 . ${SPACK_ROOT}/share/spack/setup-env.sh
+if spack find lmod > /dev/null 2>&1; then
+. $(spack location -i lmod)/lmod/lmod/init/bash
+fi
 if [[ -v SPACK_ENV_DEFAULT ]]; then
 spack env activate -p ${SPACK_ENV_DEFAULT}
 fi
 # load modules
 if [[ -v MODULES_DEFAULT ]]; then
- module --silent load ${MODULES_DEFAULT}
+module load ${MODULES_DEFAULT} > /dev/null 2>&1
 fi
 # debug mode
 if [ "${DEBUG}" = "y" ] || [ "${DEBUG}" = "Y" ] || [ "${DEBUG}" = "1" ]; then
@@ -38,12 +41,14 @@ printf "  spack:\n"
 printf "    https://spack.readthedocs.io/en/latest/\n"
 printf "    version=`spack --version`\n"
 printf "      to list installed packages > spack find\n"
-if [[ -v SPACK_ENV ]]; then
-printf "    environment=${SPACK_ENV}\n"
+if [[ -v SPACK_ENV_DEFAULT ]]; then
+printf "    environment=${SPACK_ENV_DEFAULT}\n"
 printf "      to exit environment > despacktivate\n"
 fi
 # module info
+if [[ -v MODULES_DEFAULT ]]; then
 printf "\n"
 module list
+fi
 # end login message
 printf "==================================================\n"
